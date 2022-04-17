@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +9,7 @@ using BookStoreApp.API.Data;
 using AutoMapper;
 using BookStoreApp.API.Contracts;
 using BookStoreApp.API.Models.Book;
+using AutoMapper.QueryableExtensions;
 
 namespace BookStoreApp.API.Controllers
 {
@@ -18,26 +19,32 @@ namespace BookStoreApp.API.Controllers
     {
         private readonly IBooksRepository _repository;
         private readonly IMapper _mapper;
+        private readonly BookStoreDbContext test;
 
-        public BooksController(IBooksRepository Repository, IMapper mapper)
+        public BooksController(IBooksRepository Repository, IMapper mapper, BookStoreDbContext test)
         {
             _repository = Repository;
             _mapper = mapper;
+            this.test = test;
         }
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookReadOnlyDto>>> GetBooks()
+        public async Task<ActionResult<BookReadOnlyDto>> GetBooks()
         {
             var books = await _repository.GetAllAsync<BookReadOnlyDto>();
             return Ok(books);
+     
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<BookReadOnlyDto>> GetBook(int id)
         {
-            var book = await _repository.GetAsync<BookReadOnlyDto>(id);
+            //var book = await _repository.GetAsync<BookDetailsDto>(id);
+            //return Ok(book);
+
+            var book = await _repository.GetDetails(id); 
 
             return Ok(book);
         }

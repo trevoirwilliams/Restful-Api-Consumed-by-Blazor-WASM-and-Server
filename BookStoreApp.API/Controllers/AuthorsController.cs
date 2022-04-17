@@ -44,12 +44,10 @@ namespace BookStoreApp.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
         {
-            //var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
-            //return Ok(author);
-
-            // get author with their books
-            var author = await _repository.GetDetails(id);
+            var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
             return Ok(author);
+
+
         }
 
         // PUT: api/Authors/5

@@ -24,5 +24,7 @@ namespace BookStoreApp.API.Models.Book
         [Required]
         [Range(0, int.MaxValue)]
         public decimal Price { get; set; }
+
+        public int AuthorId { get; set; }
     }
 }
