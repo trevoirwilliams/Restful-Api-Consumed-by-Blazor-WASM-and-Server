@@ -19,9 +19,9 @@ namespace BookStoreApp.API.Controllers
     {
         private readonly BookStoreDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Author> _repository;
+        private readonly IAuthorsRepository _repository;
 
-        public AuthorsController(BookStoreDbContext context, IMapper mapper, IGenericRepository<Author> repository)
+        public AuthorsController(BookStoreDbContext context, IMapper mapper, IAuthorsRepository repository)
         {
             _context = context;
             this._mapper = mapper;
@@ -44,7 +44,11 @@ namespace BookStoreApp.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
         {
-            var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
+            //var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
+            //return Ok(author);
+
+            // get author with their books
+            var author = await _repository.GetDetails(id);
             return Ok(author);
         }
 
