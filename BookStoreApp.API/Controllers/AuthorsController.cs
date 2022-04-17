@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Author;
 using AutoMapper;
+using BookStoreApp.API.Contracts;
 
 namespace BookStoreApp.API.Controllers
 {
@@ -18,63 +19,46 @@ namespace BookStoreApp.API.Controllers
     {
         private readonly BookStoreDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IGenericRepository<Author> _repository;
 
-        public AuthorsController(BookStoreDbContext context, IMapper mapper)
+        public AuthorsController(BookStoreDbContext context, IMapper mapper, IGenericRepository<Author> repository)
         {
             _context = context;
             this._mapper = mapper;
+            this._repository = repository;
         }
 
         // GET: api/Authors
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorReadOnlyDto>>> GetAuthors()
         {
-            var authors = _mapper.Map<IEnumerable<AuthorReadOnlyDto>>(await _context.Authors.ToListAsync());
+            //var authors = _mapper.Map<IEnumerable<AuthorReadOnlyDto>>(await _context.Authors.ToListAsync());
+            //return Ok(authors);
+
+            var authors = await _repository.GetAllAsync<AuthorReadOnlyDto>();
             return Ok(authors);
+
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-
-            if (author == null)
-            {
-                return NotFound();
-            }
-            var authorDto = _mapper.Map<AuthorReadOnlyDto>(author);
-            return Ok(authorDto);
+            var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
+            return Ok(author);
         }
 
         // PUT: api/Authors/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorDto)
+        public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorUpdateDto)
         {
-            if (id != authorDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var author = await _context.Authors.FindAsync(id);
-
-
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(authorDto, author);
-            _context.Entry(author).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.UpdateAsync(id, authorUpdateDto);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (! await AuthorExists(id))
+                if (!await AuthorExists(id))
                 {
                     return NotFound();
                 }
@@ -88,37 +72,27 @@ namespace BookStoreApp.API.Controllers
         }
 
         // POST: api/Authors
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
         {
-            var author = _mapper.Map<Author>(authorDto);
-
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
+            var author = await _repository.AddAsync<AuthorCreateDto, AuthorReadOnlyDto>(authorDto);
 
             return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
+
         }
 
         // DELETE: api/Authors/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteAsync(id);
 
             return NoContent();
         }
 
         private async Task<bool> AuthorExists(int id)
         {
-            return await _context.Authors.AnyAsync(e => e.Id == id);
+            return await _repository.Exists(id);
         }
     }
 }

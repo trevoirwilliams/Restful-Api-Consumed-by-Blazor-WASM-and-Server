@@ -1,5 +1,8 @@
 using BookStoreApp.API.Configurations;
+using BookStoreApp.API.Contracts;
 using BookStoreApp.API.Data;
+using BookStoreApp.API.Middleware;
+using BookStoreApp.API.Repository;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -10,6 +13,8 @@ var connString = builder.Configuration.GetConnectionString("BookStoreAppDbConnec
 builder.Services.AddDbContext<BookStoreDbContext>(options => options.UseSqlServer(connString));
 
 builder.Services.AddAutoMapper(typeof(MapperConfig));
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -34,6 +39,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// add custom middleware for global exception handling
+app.UseMiddleware<ExceptionMiddleware>();
+
 
 app.UseHttpsRedirection();
 
