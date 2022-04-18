@@ -10,11 +10,13 @@ using AutoMapper;
 using BookStoreApp.API.Contracts;
 using BookStoreApp.API.Models.Book;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BooksController : ControllerBase
     {
         private readonly IBooksRepository _repository;
