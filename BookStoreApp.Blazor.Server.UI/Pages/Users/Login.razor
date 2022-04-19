@@ -1,5 +1,6 @@
 ﻿@page "/users/login"
-@inject IAuthenticationService _authService;
+@inject IAuthenticationService _authenticationService;
+@inject NavigationManager _navigationManager
 
 
 <h3>Login</h3>
@@ -32,10 +33,10 @@
     {
         try
         {
-            var response = await _authService.AuthenticateAsync(LoginModel);
+            var response = await _authenticationService.AuthenticateAsync(LoginModel);
             if (response)
             {
-
+                _navigationManager.NavigateTo("/");
             }
             message = "Invalid credentials, try again.";
 

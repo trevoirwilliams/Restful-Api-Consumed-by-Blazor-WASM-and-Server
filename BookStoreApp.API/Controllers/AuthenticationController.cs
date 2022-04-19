@@ -1,10 +1,15 @@
 ﻿using AutoMapper;
-using BookStoreApp.API.Contracts;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.User;
+using BookStoreApp.API.Static;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace BookStoreApp.API.Controllers
 {
@@ -12,75 +17,111 @@ namespace BookStoreApp.API.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IAuthManager _authManager;
+        private readonly ILogger<AuthenticationController> logger;
+        private readonly IMapper mapper;
+        private readonly UserManager<ApiUser> userManager;
+        private readonly IConfiguration configuration;
 
-        public AuthenticationController(IAuthManager authManager)
+        public AuthenticationController(ILogger<AuthenticationController> logger, IMapper mapper, UserManager<ApiUser> userManager, IConfiguration configuration)
         {
-            this._authManager = authManager;
+            this.logger = logger;
+            this.mapper = mapper;
+            this.userManager = userManager;
+            this.configuration = configuration;
         }
 
-        //api/account/register
         [HttpPost]
         [Route("register")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> Register([FromBody] UserDto userDto)
+        public async Task<IActionResult> Register(UserDto userDto)
         {
-            var errors = await _authManager.Register(userDto);
-            if (errors.Any())
+            logger.LogInformation($"Registration attempt for {userDto.Email} ");
+            try
             {
-                foreach (var e in errors)
-                {
-                    ModelState.AddModelError(e.Code, e.Description);
-                }
-                return BadRequest(ModelState);
+                var user = mapper.Map<ApiUser>(userDto);
+                user.UserName = userDto.Email;
+                var result = await userManager.CreateAsync(user, userDto.Password);
 
+                if (result.Succeeded == false)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                    return BadRequest(ModelState);
+                }
+
+                await userManager.AddToRoleAsync(user, "User");
+                return Accepted();
             }
-            return Ok();
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Something went wrong in the {nameof(Register)}");
+                return Problem($"Something went wrong in the {nameof(Register)}", statusCode: 500);
+            }
         }
 
-
-        //api/account/login
         [HttpPost]
         [Route("login")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> Login([FromBody] LoginUserDto loginDto)
+        public async Task<ActionResult<AuthResponseDto>> Login(LoginUserDto userDto)
         {
-
-            //what you get when you log in
-            var authResponse = await _authManager.Login(loginDto);
-
-            // if null, then user is unauthorised
-            if (authResponse == null)
+            logger.LogInformation($"Login Attempt for {userDto.Email} ");
+            try
             {
-                return Unauthorized();
-            }
-            return Ok(authResponse);
+                var user = await userManager.FindByEmailAsync(userDto.Email);
+                var passwordValid = await userManager.CheckPasswordAsync(user, userDto.Password);
 
+                if (user == null || passwordValid == false)
+                {
+                    return Unauthorized(userDto);
+                }
+
+                string tokenString = await GenerateToken(user);
+
+                var response = new AuthResponseDto
+                {
+                    Email = userDto.Email,
+                    Token = tokenString,
+                    UserId = user.Id,
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Something went wrong in the {nameof(Register)}");
+                return Problem($"Something went wrong in the {nameof(Register)}", statusCode: 500);
+            }
         }
 
-        //api/account/refreshtoken
-        [HttpPost]
-        [Route("refreshtoken")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> RefreshToken([FromBody] AuthResponseDto request)
+        private async Task<string> GenerateToken(ApiUser user)
         {
+            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]));
+            var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
 
-            var authResponse = await _authManager.VerifyRefreshToken(request);
+            var roles = await userManager.GetRolesAsync(user);
+            var roleClaims = roles.Select(q => new Claim(ClaimTypes.Role, q)).ToList();
 
-            if (authResponse == null)
+            var userClaims = await userManager.GetClaimsAsync(user);
+
+            var claims = new List<Claim>
             {
-                return Unauthorized();
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(CustomClaimTypes.Uid, user.Id)
             }
-            return Ok(authResponse);
+            .Union(userClaims)
+            .Union(roleClaims);
+
+            var token = new JwtSecurityToken(
+                issuer: configuration["JwtSettings:Issuer"],
+                audience: configuration["JwtSettings:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(Convert.ToInt32(configuration["JwtSettings:Duration"])),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-
-
     }
 }
