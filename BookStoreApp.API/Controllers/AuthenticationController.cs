@@ -55,7 +55,7 @@ namespace BookStoreApp.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Something went wro in the {nameof(Register)}");
+                logger.LogError(ex, $"Something went wrong in the {nameof(Register)}");
                 return Problem($"Something went wrong in the {nameof(Register)}", statusCode: 500);
             }
         }
