@@ -1,5 +1,5 @@
 ﻿@page "/users/register"
-@inject IClient httpClient;
+@inject IClient _httpClient;
 @inject NavigationManager navManager;
 
 <h3>Register</h3>
@@ -54,7 +54,7 @@
 
         try
         {
-            await httpClient.RegisterAsync(RegistrationModel);
+            await _httpClient.RegisterAsync(RegistrationModel);
              NavigateToLogin();
         }
         catch (ApiException ex)
@@ -63,7 +63,7 @@
             {
                 NavigateToLogin();
             }
-            message = ex.Message;
+            message = ex.Response;
         }
     }
 
