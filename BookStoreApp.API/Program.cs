@@ -106,7 +106,6 @@ if (app.Environment.IsDevelopment())
 // add custom middleware for global exception handling
 app.UseMiddleware<ExceptionMiddleware>();
 
-
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");

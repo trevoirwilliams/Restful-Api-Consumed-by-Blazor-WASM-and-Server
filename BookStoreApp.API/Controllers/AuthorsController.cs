@@ -48,8 +48,6 @@ namespace BookStoreApp.API.Controllers
         {
             var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
             return Ok(author);
-
-
         }
 
         // PUT: api/Authors/5
