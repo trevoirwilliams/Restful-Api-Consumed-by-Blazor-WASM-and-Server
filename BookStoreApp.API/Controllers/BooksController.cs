@@ -43,12 +43,12 @@ namespace BookStoreApp.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BookReadOnlyDto>> GetBook(int id)
         {
-            //var book = await _repository.GetAsync<BookDetailsDto>(id);
-            //return Ok(book);
-
-            var book = await _repository.GetDetails(id); 
-
+            var book = await _repository.GetAsync<BookDetailsDto>(id);
             return Ok(book);
+
+            //var book = await _repository.GetDetails(id); 
+
+            //return Ok(book);
         }
 
         // PUT: api/Books/5
