@@ -22,6 +22,7 @@ builder.Services.AddIdentityCore<ApiUser>()
     .AddEntityFrameworkStores<BookStoreDbContext>();
 
 builder.Services.AddAutoMapper(typeof(MapperConfig));
+builder.Services.AddScoped<IAuthorsRepository, AuthorsRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

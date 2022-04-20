@@ -1,5 +1,6 @@
 
 using Blazored.LocalStorage;
+using BookStoreApp.Blazor.Server.UI.Configurations;
 using BookStoreApp.Blazor.Server.UI.Providers;
 using BookStoreApp.Blazor.Server.UI.Services;
 using BookStoreApp.Blazor.Server.UI.Services.Authentication;
@@ -18,6 +19,8 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddHttpClient<IClient, Client>(c => c.BaseAddress = new Uri("https://localhost:7100"));
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
+
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 //add scoped instance of service for AuthenticationStateProvider, where it can be implemented also by override method ApiAuthenticationStateProvider
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();
