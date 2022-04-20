@@ -40,6 +40,7 @@ namespace BookStoreApp.Blazor.Server.UI.Providers
 
         public async Task LoggedIn()
         {
+            // change state of app to logged in
             var claims = await GetClaims();
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
             var authState = Task.FromResult(new AuthenticationState(user));
@@ -48,7 +49,8 @@ namespace BookStoreApp.Blazor.Server.UI.Providers
         }
 
         public async Task LoggedOut()
-        {            
+        {
+            // change state of app to logged out
             await _localStorage.RemoveItemAsync("accessToken");
             var nobody = new ClaimsPrincipal(new ClaimsIdentity());
             var authState = Task.FromResult(new AuthenticationState(nobody));
