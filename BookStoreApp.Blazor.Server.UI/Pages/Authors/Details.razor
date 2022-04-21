@@ -42,11 +42,11 @@
     [Parameter]
     public int id { get; set; }
 
-    private AuthorDetailsDto Author = new AuthorDetailsDto();
+    private AuthorReadOnlyDto Author = new AuthorReadOnlyDto();
 
     protected async override Task OnInitializedAsync()
     {
-        var response = await authorService.GetAuthor(id);
+        var response = await authorService.(id);
         if (response.Success)
         {
             Author = response.Data;
@@ -60,6 +60,6 @@
 
     private void GoToEdit()
     {
-        navManager.NavigateTo($"/authors/update/{Author.Id}");
+        navManager.NavigateTo($"/authors/edit/{Author.Id}");
     }
 }*@

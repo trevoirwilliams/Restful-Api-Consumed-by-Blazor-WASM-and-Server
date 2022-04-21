@@ -58,27 +58,9 @@ namespace BookStoreApp.API.Controllers
         [HttpGet("GetAuthorDetails/{id}")]  
         public async Task<ActionResult<AuthorDetailsDto>> GetAuthorDetails(int id)
         {
-            try
-            {
-                var author = await _context.Authors
-                    .Include(q => q.Books)
-                    .ProjectTo<AuthorDetailsDto>(_mapper.ConfigurationProvider)
-                    .FirstOrDefaultAsync(q => q.Id == id);
+            var author = await _repository.GetDetails(id);
+            return Ok(author);
 
-                if (author == null)
-                {
-                    //_logger.LogWarning($"Record Not Found: {nameof(GetAuthor)} - ID: {id}");
-                    return NotFound();
-                }
-
-                return Ok(author);
-            }
-            catch (Exception ex)
-            {
-               // _logger.LogError(ex, $"Error Performing GET in {nameof(GetAuthors)}");
-                return StatusCode(500, Messages.Error500Message);
-            }
-        
         }
 
 

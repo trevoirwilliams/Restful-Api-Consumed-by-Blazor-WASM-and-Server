@@ -5,6 +5,6 @@ namespace BookStoreApp.API.Contracts
 {
     public interface IAuthorsRepository : IGenericRepository<Author>
     {
-    
+        Task<AuthorDetailsDto> GetDetails(int id);
     }
 }
