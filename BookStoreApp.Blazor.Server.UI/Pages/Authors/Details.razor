@@ -1,6 +1,6 @@
-﻿@*page "/authors/details/{id:int}"
-@inject IAuthorService authorService
-@inject NavigationManager navManager
+﻿page "/authors/details/{id:int}"
+@inject IAuthorService _authorService
+@inject NavigationManager _navigationManager
 
 <h3>Author Details</h3>
 
@@ -42,11 +42,11 @@
     [Parameter]
     public int id { get; set; }
 
-    private AuthorReadOnlyDto Author = new AuthorReadOnlyDto();
+    private AuthorDetailsDto Author = new AuthorDetailsDto();
 
     protected async override Task OnInitializedAsync()
     {
-        var response = await authorService.(id);
+        var response = await _authorService.GetAuthorDetails(id);
         if (response.Success)
         {
             Author = response.Data;
@@ -55,11 +55,11 @@
 
     private void BackToList()
     {
-        navManager.NavigateTo("/authors/");
+        _navigationManager.NavigateTo("/authors/");
     }
 
     private void GoToEdit()
     {
-        navManager.NavigateTo($"/authors/edit/{Author.Id}");
+        _navigationManager.NavigateTo($"/authors/edit/{Author.Id}");
     }
-}*@
+}

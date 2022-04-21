@@ -74,8 +74,8 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             try
             {
                 await GetBearerToken();
-                var data = await _client.GetAuthorDetails(id);
-                response = new Response<AuthorReadOnlyDto>
+                var data = await _client.GetAuthorDetailsAsync(id);
+                response = new Response<AuthorDetailsDto>
                 {
                     Data = data,
                     Success = true
