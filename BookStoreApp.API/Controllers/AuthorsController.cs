@@ -11,6 +11,8 @@ using BookStoreApp.API.Models.Author;
 using AutoMapper;
 using BookStoreApp.API.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper.QueryableExtensions;
+using BookStoreApp.API.Static;
 
 namespace BookStoreApp.API.Controllers
 {
@@ -48,7 +50,38 @@ namespace BookStoreApp.API.Controllers
         {
             var author = await _repository.GetAsync<AuthorReadOnlyDto>(id);
             return Ok(author);
+
+         
         }
+          
+    
+        [HttpGet("GetAuthorDetails/{id}")]  
+        public async Task<ActionResult<AuthorDetailsDto>> GetAuthorDetails(int id)
+        {
+            try
+            {
+                var author = await _context.Authors
+                    .Include(q => q.Books)
+                    .ProjectTo<AuthorDetailsDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync(q => q.Id == id);
+
+                if (author == null)
+                {
+                    //_logger.LogWarning($"Record Not Found: {nameof(GetAuthor)} - ID: {id}");
+                    return NotFound();
+                }
+
+                return Ok(author);
+            }
+            catch (Exception ex)
+            {
+               // _logger.LogError(ex, $"Error Performing GET in {nameof(GetAuthors)}");
+                return StatusCode(500, Messages.Error500Message);
+            }
+        
+        }
+
+
 
         // PUT: api/Authors/5
         [HttpPut("{id}")]

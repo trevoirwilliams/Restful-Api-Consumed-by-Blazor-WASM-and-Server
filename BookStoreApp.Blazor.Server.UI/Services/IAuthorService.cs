@@ -1,4 +1,5 @@
-﻿using BookStoreApp.Blazor.Server.UI.Services.Base;
+﻿
+using BookStoreApp.Blazor.Server.UI.Services.Base;
 
 namespace BookStoreApp.Blazor.Server.UI.Services
 {
@@ -6,6 +7,7 @@ namespace BookStoreApp.Blazor.Server.UI.Services
     {
         Task<Response<List<AuthorReadOnlyDto>>> GetAuthors();
         Task<Response<AuthorReadOnlyDto>> GetAuthor(int id);
+       // Task<Response<AuthorDetailsDto>> GetAuthorDetails(int id);
         Task<Response<AuthorUpdateDto>> GetAuthorForUpdate(int id);
         Task<Response<int>> CreateAuthor(AuthorCreateDto author);
         Task<Response<int>> EditAuthor(int id, AuthorUpdateDto author);
