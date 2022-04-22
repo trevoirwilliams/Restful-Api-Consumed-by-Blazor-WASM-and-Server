@@ -20,21 +20,21 @@ namespace BookStoreApp.API.Repository
             this._mapper = mapper;
         }
 
-        //public async Task<BookReadOnlyDto> GetDetails(int id)
-        //{
-        //    //include matching author for book
-        //    var book = await _context.Books.Include(q => q.Author)
-        //        .ProjectTo<BookReadOnlyDto>(_mapper.ConfigurationProvider)
-        //        .FirstOrDefaultAsync(q => q.Id == id);
+        public async Task<BookDetailsDto> GetDetails(int id)
+        {
+            //include matching author for book
+            var book = await _context.Books.Include(q => q.Author)
+                .ProjectTo<BookDetailsDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(q => q.Id == id);
 
-        //    if (book == null)
-        //    {
-        //        throw new NotFoundException(nameof(GetDetails), id);
-        //    }
+            if (book == null)
+            {
+                throw new NotFoundException(nameof(GetDetails), id);
+            }
 
-        //    return book;
+            return book;
 
-        //}
+        }
 
 
     }
