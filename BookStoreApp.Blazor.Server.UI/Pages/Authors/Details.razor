@@ -3,6 +3,7 @@
 @inject IAuthorService _authorService
 @inject NavigationManager _navigationManager
 
+
 <h3>Author Details</h3>
 
 <EditForm Model="Author">
@@ -42,6 +43,7 @@
               <div class="card-body">
                 <h5 class="card-title">@book.Title - @book.Price.ToString("C")</h5>
                 <p class="card-text"></p>
+                <br>
                 <a href="#" class="btn btn-primary">View Book</a>
               </div>
             </div>

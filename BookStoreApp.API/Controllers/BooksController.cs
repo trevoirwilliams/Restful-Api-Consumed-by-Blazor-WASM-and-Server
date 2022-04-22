@@ -16,7 +16,7 @@ namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class BooksController : ControllerBase
     {
         private readonly IBooksRepository _repository;
@@ -53,6 +53,7 @@ namespace BookStoreApp.API.Controllers
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> PutBook(int id, BookUpdateDto updateBookDto)
         {
             try
@@ -76,6 +77,7 @@ namespace BookStoreApp.API.Controllers
 
         // POST: api/Books
         [HttpPost]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<Book>> PostBook(BookCreateDto bookDto)
         {
             var book = await _repository.AddAsync<BookCreateDto, BookReadOnlyDto>(bookDto);
@@ -86,6 +88,7 @@ namespace BookStoreApp.API.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             await _repository.DeleteAsync(id);

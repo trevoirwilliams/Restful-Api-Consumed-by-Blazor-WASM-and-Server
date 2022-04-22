@@ -1,6 +1,7 @@
 ﻿@page "/authors/edit/{id:int}"
 @inject IAuthorService _authorService
 @inject NavigationManager _navigationManager
+@attribute [Authorize(Roles=Roles.Administrator)]
 
 <h3>Edit Author</h3>
 
