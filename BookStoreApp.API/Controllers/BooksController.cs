@@ -32,7 +32,7 @@ namespace BookStoreApp.API.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<BookReadOnlyDto>> GetBooks()
+        public async Task<ActionResult<IEnumerable<BookReadOnlyDto>>>  GetBooks()
         {
             var books = await _repository.GetAllAsync<BookReadOnlyDto>();
             return Ok(books);

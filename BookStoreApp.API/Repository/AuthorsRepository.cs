@@ -22,9 +22,10 @@ namespace BookStoreApp.API.Repository
         public async Task<AuthorDetailsDto> GetDetails(int id)
         {
             //include matching books for author
-            var author = await _context.Authors.Include(q => q.Books)
-                .ProjectTo<AuthorDetailsDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(q => q.Id == id);
+            var author = await _context.Authors
+                 .Include(q => q.Books)
+                 .ProjectTo<AuthorDetailsDto>(_mapper.ConfigurationProvider)
+                 .FirstOrDefaultAsync(q => q.Id == id);
 
             if (author == null)
             {
