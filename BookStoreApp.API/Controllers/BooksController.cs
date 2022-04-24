@@ -90,31 +90,26 @@ namespace BookStoreApp.API.Controllers
         public async Task<ActionResult<BookCreateDto>> PostBook(BookCreateDto bookDto)
         {
 
-           var book = await _repository.AddAsync<BookCreateDto, BookReadOnlyDto>(bookDto);
+    
+           var  book = await _repository.AddAsync<BookCreateDto, BookReadOnlyDto>(bookDto);
             book.Image = CreateFile(bookDto.ImageData, bookDto.OriginalImageName);
+
             return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
         private string CreateFile(string imageBase64, string imageName)
         {
-            // get url for app
             var url = HttpContext.Request.Host.Value;
             var ext = Path.GetExtension(imageName);
-            // get brand new guid file name so filenames are unique and add extension
             var fileName = $"{ Guid.NewGuid()}.{ext}";
-
             var path = $"{_webHostEnvironment.WebRootPath}\\bookcoverimages\\{fileName}";
-
-            // convert from base64 to byte array
+       
             byte[] image = Convert.FromBase64String(imageBase64);
             var fileStream = System.IO.File.Create(path);
             fileStream.Write(image, 0, image.Length);
             fileStream.Close();
 
-            //return url/folder/filename
             return $"http://{url}/bookcoverimages/{fileName}";
-
-
         }
 
         // DELETE: api/Books/5
