@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,17 +28,17 @@ namespace BookStoreApp.API.Controllers
         {
             _repository = Repository;
             _mapper = mapper;
-            this._context= context;
+            this._context = context;
             this._webHostEnvironment = webHostEnvironment;
         }
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookReadOnlyDto>>>  GetBooks()
+        public async Task<ActionResult<IEnumerable<BookReadOnlyDto>>> GetBooks()
         {
             var books = await _repository.GetAllAsync<BookReadOnlyDto>();
             return Ok(books);
-     
+
         }
 
         // GET: api/Books/5
@@ -89,28 +89,10 @@ namespace BookStoreApp.API.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<BookCreateDto>> PostBook(BookCreateDto bookDto)
         {
-
-    
-           var  book = await _repository.AddAsync<BookCreateDto, BookReadOnlyDto>(bookDto);
-            book.Image = CreateFile(bookDto.ImageData, bookDto.OriginalImageName);
-
+            var book = await _repository.AddBook(bookDto);
             return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
-        private string CreateFile(string imageBase64, string imageName)
-        {
-            var url = HttpContext.Request.Host.Value;
-            var ext = Path.GetExtension(imageName);
-            var fileName = $"{ Guid.NewGuid()}.{ext}";
-            var path = $"{_webHostEnvironment.WebRootPath}\\bookcoverimages\\{fileName}";
-       
-            byte[] image = Convert.FromBase64String(imageBase64);
-            var fileStream = System.IO.File.Create(path);
-            fileStream.Write(image, 0, image.Length);
-            fileStream.Close();
-
-            return $"http://{url}/bookcoverimages/{fileName}";
-        }
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
@@ -122,7 +104,7 @@ namespace BookStoreApp.API.Controllers
             return NoContent();
         }
 
-        private async Task <bool> BookExists(int id)
+        private async Task<bool> BookExists(int id)
         {
             return await _repository.Exists(id);
         }

@@ -5,7 +5,8 @@ namespace BookStoreApp.API.Contracts
 {
     public interface IBooksRepository : IGenericRepository<Book>
     {
-        Task <BookDetailsDto> GetDetails(int id);
+        Task<BookDetailsDto> GetDetails(int id);
+        Task<BookReadOnlyDto> AddBook(BookCreateDto book);
 
     }
 }
